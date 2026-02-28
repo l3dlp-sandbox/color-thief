@@ -152,3 +152,47 @@ describe('getPalette()', function() {
         return expect(ColorThief.getPalette('/non/existent/file.png')).to.be.rejected;
     });
 });
+
+
+describe('Options object API', function() {
+    it('getColor accepts options object', function() {
+        return ColorThief.getColor(imgPath('rainbow-vertical.png'), { quality: 1 }).then(color => {
+            expect(isValidRGB(color)).to.be.true;
+        });
+    });
+
+    it('getPalette accepts options object', function() {
+        return ColorThief.getPalette(imgPath('rainbow-vertical.png'), { colorCount: 5, quality: 10 }).then(palette => {
+            expect(palette).to.have.lengthOf(5);
+            palette.forEach(color => expect(isValidRGB(color)).to.be.true);
+        });
+    });
+
+    it('ignoreWhite: false includes white pixels', function() {
+        return ColorThief.getPalette(imgPath('white.png'), { ignoreWhite: false }).then(palette => {
+            expect(palette).to.be.an('array').that.is.not.empty;
+            palette.forEach(color => expect(isValidRGB(color)).to.be.true);
+        });
+    });
+
+    it('alphaThreshold controls transparency filtering', function() {
+        // With alphaThreshold: 0, no pixels are filtered by transparency
+        return ColorThief.getColor(imgPath('rainbow-vertical.png'), { alphaThreshold: 0 }).then(color => {
+            expect(isValidRGB(color)).to.be.true;
+        });
+    });
+
+    it('minSaturation filters low-saturation pixels', function() {
+        return ColorThief.getPalette(imgPath('rainbow-vertical.png'), { colorCount: 5, minSaturation: 0.2 }).then(palette => {
+            expect(palette).to.have.lengthOf(5);
+            palette.forEach(color => expect(isValidRGB(color)).to.be.true);
+        });
+    });
+
+    it('positional args still work after options support added', function() {
+        return ColorThief.getPalette(imgPath('rainbow-vertical.png'), 5, 10).then(palette => {
+            expect(palette).to.have.lengthOf(5);
+            palette.forEach(color => expect(isValidRGB(color)).to.be.true);
+        });
+    });
+});
