@@ -17,6 +17,10 @@ describe('getColor()', { testIsolation: false }, function() {
         cy.get('[data-image="black.png"] .output-color').should(($el) => {
             const count = rgbCount($el.text())
             expect(count).to.equal(1);
+            const [r, g, b] = $el.text().split(',').map(Number);
+            expect(r).to.be.lessThan(10);
+            expect(g).to.be.lessThan(10);
+            expect(b).to.be.lessThan(10);
         });
     })
 
@@ -24,6 +28,10 @@ describe('getColor()', { testIsolation: false }, function() {
         cy.get('[data-image="red.png"] .output-color').should(($el) => {
             const count = rgbCount($el.text())
             expect(count).to.equal(1);
+            const [r, g, b] = $el.text().split(',').map(Number);
+            expect(r).to.be.greaterThan(240);
+            expect(g).to.be.lessThan(15);
+            expect(b).to.be.lessThan(15);
         });
     })
 

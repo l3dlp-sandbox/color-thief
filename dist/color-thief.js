@@ -53,7 +53,7 @@ const loadImg = (img) => {
 
 function getColor(img, quality) {
     return getPalette(img, 5, quality)
-        .then(palette => palette[0]);
+        .then(palette => palette === null ? null : palette[0]);
 }
 
 function getPalette(img, colorCount = 10, quality = 10) {

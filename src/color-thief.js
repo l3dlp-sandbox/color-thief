@@ -57,7 +57,7 @@ var ColorThief = function () {};
  * */
 ColorThief.prototype.getColor = function(sourceImage, quality = 10) {
     const palette       = this.getPalette(sourceImage, 5, quality);
-    const dominantColor = palette[0];
+    const dominantColor = palette === null ? null : palette[0];
     return dominantColor;
 };
 
