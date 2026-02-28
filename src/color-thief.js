@@ -88,7 +88,15 @@ ColorThief.prototype.getPalette = function(sourceImage, colorCount, quality) {
     const imageData  = image.getImageData();
     const pixelCount = image.width * image.height;
 
-    const pixelArray = core.createPixelArray(imageData.data, pixelCount, options.quality);
+    let pixelArray = core.createPixelArray(imageData.data, pixelCount, options.quality);
+
+    // If filtering removed all pixels, progressively relax filters
+    if (pixelArray.length === 0) {
+        pixelArray = core.createPixelArray(imageData.data, pixelCount, options.quality, { filterWhite: false });
+    }
+    if (pixelArray.length === 0) {
+        pixelArray = core.createPixelArray(imageData.data, pixelCount, options.quality, { filterWhite: false, filterTransparent: false });
+    }
 
     // Send array to quantize function which clusters values
     // using median cut algorithm

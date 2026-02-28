@@ -42,21 +42,19 @@ describe('getColor()', { testIsolation: false }, function() {
         });
     })
 
-    // ⚠️BREAKS
-    // it('returns valid color from white image', function() {
-    //     cy.get('[data-image="white.png"] .output-color').should(($el) => {
-    //         const count = rgbCount($el.text())
-    //         expect(count).to.equal(1);
-    //     });
-    // })
+    it('returns valid color from white image', function() {
+        cy.get('[data-image="white.png"] .output-color').should(($el) => {
+            const count = rgbCount($el.text())
+            expect(count).to.equal(1);
+        });
+    })
 
-    // ⚠️BREAKS
-    // it('returns valid color from transparent image', function() {
-    //     cy.get('[data-image="transparent.png"] .output-color').should(($el) => {
-    //         const count = rgbCount($el.text())
-    //         expect(count).to.equal(1);
-    //     });
-    // })
+    it('returns valid color from transparent image', function() {
+        cy.get('[data-image="transparent.png"] .output-color').should(($el) => {
+            const count = rgbCount($el.text())
+            expect(count).to.equal(1);
+        });
+    })
 })
 
 function testPaletteCount(num) {

@@ -6,8 +6,8 @@ var images = [
     'red.png',
     'rainbow-horizontal.png',
     'rainbow-vertical.png',
-    // 'transparent.png',
-    // 'white.png',
+    'transparent.png',
+    'white.png',
 ];
 
 // Render example images

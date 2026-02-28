@@ -3,7 +3,7 @@ const sharp = require('sharp');
 const quantize = require('@lokesh.dhakar/quantize');
 const FileType = require('file-type');
 
-function createPixelArray(pixels, pixelCount, quality) {
+function createPixelArray(pixels, pixelCount, quality, { filterWhite = true, filterTransparent = true } = {}) {
     const pixelArray = [];
 
     for (let i = 0, offset, r, g, b, a; i < pixelCount; i += quality) {
@@ -13,9 +13,13 @@ function createPixelArray(pixels, pixelCount, quality) {
         b = pixels[offset + 2];
         a = pixels[offset + 3];
 
-        // If pixel is mostly opaque and not white
-        if ((typeof a === 'undefined' || a >= 125) && !(r > 250 && g > 250 && b > 250))
-            pixelArray.push([r, g, b]);
+        // Skip transparent pixels
+        if (filterTransparent && typeof a !== 'undefined' && a < 125) continue;
+
+        // Skip white pixels
+        if (filterWhite && r > 250 && g > 250 && b > 250) continue;
+
+        pixelArray.push([r, g, b]);
     }
 
     return pixelArray;
@@ -62,7 +66,15 @@ function getPalette(img, colorCount = 10, quality = 10) {
     return loadImg(img)
         .then(imgData => {
             const pixelCount = imgData.shape[0] * imgData.shape[1];
-            const pixelArray = createPixelArray(imgData.data, pixelCount, options.quality);
+            let pixelArray = createPixelArray(imgData.data, pixelCount, options.quality);
+
+            // If filtering removed all pixels, progressively relax filters
+            if (pixelArray.length === 0) {
+                pixelArray = createPixelArray(imgData.data, pixelCount, options.quality, { filterWhite: false });
+            }
+            if (pixelArray.length === 0) {
+                pixelArray = createPixelArray(imgData.data, pixelCount, options.quality, { filterWhite: false, filterTransparent: false });
+            }
 
             const cmap = quantize(pixelArray, options.colorCount);
             const palette = cmap ? cmap.palette() : null;

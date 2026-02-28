@@ -1,4 +1,4 @@
-function createPixelArray(imgData, pixelCount, quality) {
+function createPixelArray(imgData, pixelCount, quality, { filterWhite = true, filterTransparent = true } = {}) {
     const pixels = imgData;
     const pixelArray = [];
 
@@ -9,12 +9,13 @@ function createPixelArray(imgData, pixelCount, quality) {
         b = pixels[offset + 2];
         a = pixels[offset + 3];
 
-        // If pixel is mostly opaque and not white
-        if (typeof a === 'undefined' || a >= 125) {
-            if (!(r > 250 && g > 250 && b > 250)) {
-                pixelArray.push([r, g, b]);
-            }
-        }
+        // Skip transparent pixels
+        if (filterTransparent && typeof a !== 'undefined' && a < 125) continue;
+
+        // Skip white pixels
+        if (filterWhite && r > 250 && g > 250 && b > 250) continue;
+
+        pixelArray.push([r, g, b]);
     }
     return pixelArray;
 }

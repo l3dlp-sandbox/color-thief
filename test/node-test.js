@@ -47,15 +47,16 @@ describe('getColor()', function() {
         });
     });
 
-    it('returns null for white.png', function() {
+    it('returns valid RGB for white.png', function() {
         return ColorThief.getColor(imgPath('white.png')).then(color => {
-            expect(color).to.be.null;
+            expect(isValidRGB(color)).to.be.true;
+            expect(isCloseTo(color, [255, 255, 255])).to.be.true;
         });
     });
 
-    it('returns null for transparent.png', function() {
+    it('returns valid RGB for transparent.png', function() {
         return ColorThief.getColor(imgPath('transparent.png')).then(color => {
-            expect(color).to.be.null;
+            expect(isValidRGB(color)).to.be.true;
         });
     });
 
@@ -125,15 +126,17 @@ describe('getPalette()', function() {
         });
     });
 
-    it('returns null for white.png', function() {
+    it('returns valid palette for white.png', function() {
         return ColorThief.getPalette(imgPath('white.png')).then(palette => {
-            expect(palette).to.be.null;
+            expect(palette).to.be.an('array').that.is.not.empty;
+            palette.forEach(color => expect(isValidRGB(color)).to.be.true);
         });
     });
 
-    it('returns null for transparent.png', function() {
+    it('returns valid palette for transparent.png', function() {
         return ColorThief.getPalette(imgPath('transparent.png')).then(palette => {
-            expect(palette).to.be.null;
+            expect(palette).to.be.an('array').that.is.not.empty;
+            palette.forEach(color => expect(isValidRGB(color)).to.be.true);
         });
     });
 
