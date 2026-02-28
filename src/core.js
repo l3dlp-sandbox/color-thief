@@ -1,4 +1,11 @@
-function createPixelArray(imgData, pixelCount, quality, { filterWhite = true, filterTransparent = true } = {}) {
+function createPixelArray(imgData, pixelCount, quality, filterOptions) {
+    const {
+        ignoreWhite = true,
+        whiteThreshold = 250,
+        alphaThreshold = 125,
+        minSaturation = 0
+    } = filterOptions || {};
+
     const pixels = imgData;
     const pixelArray = [];
 
@@ -10,10 +17,16 @@ function createPixelArray(imgData, pixelCount, quality, { filterWhite = true, fi
         a = pixels[offset + 3];
 
         // Skip transparent pixels
-        if (filterTransparent && typeof a !== 'undefined' && a < 125) continue;
+        if (typeof a !== 'undefined' && a < alphaThreshold) continue;
 
         // Skip white pixels
-        if (filterWhite && r > 250 && g > 250 && b > 250) continue;
+        if (ignoreWhite && r > whiteThreshold && g > whiteThreshold && b > whiteThreshold) continue;
+
+        // Skip low-saturation pixels
+        if (minSaturation > 0) {
+            const max = Math.max(r, g, b);
+            if (max === 0 || (max - Math.min(r, g, b)) / max < minSaturation) continue;
+        }
 
         pixelArray.push([r, g, b]);
     }
@@ -36,13 +49,48 @@ function validateOptions(options) {
         quality = 10;
     }
 
+    // Filter options with defaults
+    const ignoreWhite = options.ignoreWhite !== undefined ? !!options.ignoreWhite : true;
+    const whiteThreshold = typeof options.whiteThreshold === 'number' ? options.whiteThreshold : 250;
+    const alphaThreshold = typeof options.alphaThreshold === 'number' ? options.alphaThreshold : 125;
+    const minSaturation = typeof options.minSaturation === 'number'
+        ? Math.max(0, Math.min(1, options.minSaturation))
+        : 0;
+
     return {
         colorCount,
-        quality
+        quality,
+        ignoreWhite,
+        whiteThreshold,
+        alphaThreshold,
+        minSaturation
     }
+}
+
+function computeFallbackColor(imgData, pixelCount, quality) {
+    const pixels = imgData;
+    let rTotal = 0, gTotal = 0, bTotal = 0;
+    let count = 0;
+
+    for (let i = 0; i < pixelCount; i += quality) {
+        const offset = i * 4;
+        rTotal += pixels[offset];
+        gTotal += pixels[offset + 1];
+        bTotal += pixels[offset + 2];
+        count++;
+    }
+
+    if (count === 0) return null;
+
+    return [
+        Math.round(rTotal / count),
+        Math.round(gTotal / count),
+        Math.round(bTotal / count)
+    ];
 }
 
 export default {
     createPixelArray,
-    validateOptions
+    validateOptions,
+    computeFallbackColor
 };

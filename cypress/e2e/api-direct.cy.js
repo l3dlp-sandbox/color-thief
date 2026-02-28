@@ -28,21 +28,24 @@ describe('Direct API - getColor()', { testIsolation: false }, function() {
         });
     });
 
-    it('returns null for white.png', function() {
+    it('returns near-white for white.png', function() {
         cy.window().then((win) => {
             const ct = new win.ColorThief();
             const img = win.document.getElementById('img-white');
             const color = ct.getColor(img);
-            expect(color).to.be.null;
+            expect(color).to.have.lengthOf(3);
+            expect(color[0]).to.be.greaterThan(240);
+            expect(color[1]).to.be.greaterThan(240);
+            expect(color[2]).to.be.greaterThan(240);
         });
     });
 
-    it('returns null for transparent.png', function() {
+    it('returns valid color for transparent.png', function() {
         cy.window().then((win) => {
             const ct = new win.ColorThief();
             const img = win.document.getElementById('img-transparent');
             const color = ct.getColor(img);
-            expect(color).to.be.null;
+            expect(color).to.have.lengthOf(3);
         });
     });
 
@@ -76,21 +79,25 @@ describe('Direct API - getPalette()', { testIsolation: false }, function() {
         });
     });
 
-    it('returns null for white.png', function() {
+    it('returns palette with white for white.png', function() {
         cy.window().then((win) => {
             const ct = new win.ColorThief();
             const img = win.document.getElementById('img-white');
             const palette = ct.getPalette(img);
-            expect(palette).to.be.null;
+            expect(palette).to.be.an('array').that.has.lengthOf(1);
+            expect(palette[0][0]).to.be.greaterThan(240);
+            expect(palette[0][1]).to.be.greaterThan(240);
+            expect(palette[0][2]).to.be.greaterThan(240);
         });
     });
 
-    it('returns null for transparent.png', function() {
+    it('returns valid palette for transparent.png', function() {
         cy.window().then((win) => {
             const ct = new win.ColorThief();
             const img = win.document.getElementById('img-transparent');
             const palette = ct.getPalette(img);
-            expect(palette).to.be.null;
+            expect(palette).to.be.an('array').that.is.not.empty;
+            palette.forEach(color => expect(color).to.have.lengthOf(3));
         });
     });
 
@@ -117,6 +124,70 @@ describe('Direct API - getPalette()', { testIsolation: false }, function() {
             const img = win.document.getElementById('img-rainbow');
             const palette = ct.getPalette(img, 21);
             expect(palette).to.have.lengthOf(20);
+        });
+    });
+});
+
+describe('Direct API - Input Types', { testIsolation: false }, function() {
+    before(function() {
+        cy.visit('http://localhost:8080/cypress/test-pages/api-direct.html');
+        cy.get('body[data-ready="true"]', { timeout: 10000 });
+    });
+
+    it('accepts HTMLCanvasElement input', function() {
+        cy.window().then((win) => {
+            const ct = new win.ColorThief();
+            const img = win.document.getElementById('img-red');
+            const canvas = win.document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            ctx.drawImage(img, 0, 0);
+            const color = ct.getColor(canvas);
+            expect(color).to.have.lengthOf(3);
+            expect(color[0]).to.be.greaterThan(240);
+        });
+    });
+
+    it('accepts ImageData input', function() {
+        cy.window().then((win) => {
+            const ct = new win.ColorThief();
+            const img = win.document.getElementById('img-red');
+            const canvas = win.document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            ctx.drawImage(img, 0, 0);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const color = ct.getColor(imageData);
+            expect(color).to.have.lengthOf(3);
+            expect(color[0]).to.be.greaterThan(240);
+        });
+    });
+
+    it('accepts ImageBitmap input', function() {
+        cy.window().then((win) => {
+            const img = win.document.getElementById('img-red');
+            return win.createImageBitmap(img).then((bitmap) => {
+                const ct = new win.ColorThief();
+                const color = ct.getColor(bitmap);
+                expect(color).to.have.lengthOf(3);
+                expect(color[0]).to.be.greaterThan(240);
+            });
+        });
+    });
+
+    it('accepts options object with HTMLCanvasElement', function() {
+        cy.window().then((win) => {
+            const ct = new win.ColorThief();
+            const img = win.document.getElementById('img-rainbow');
+            const canvas = win.document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            ctx.drawImage(img, 0, 0);
+            const palette = ct.getPalette(canvas, { colorCount: 5 });
+            expect(palette).to.have.lengthOf(5);
         });
     });
 });

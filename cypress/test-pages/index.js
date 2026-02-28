@@ -23,7 +23,7 @@ const showColorsForImage = function(image, section) {
     let elapsedTime = Date.now() - start;
     const colorHTML = Mustache.to_html(document.getElementById('color-tpl').innerHTML, {
         color: result,
-        colorStr: result.toString(),
+        colorStr: result ? result.toString() : 'null',
         elapsedTime
     })
 
@@ -37,7 +37,7 @@ const showColorsForImage = function(image, section) {
         paletteHTML += Mustache.to_html(document.getElementById('palette-tpl').innerHTML, {
             count,
             palette: result,
-            paletteStr: result.toString(),
+            paletteStr: result ? result.toString() : 'null',
             elapsedTime
         })
     });
