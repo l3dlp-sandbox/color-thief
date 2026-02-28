@@ -22,6 +22,10 @@
         "url": "https://github.com/lokesh/color-thief.git"
     },
     "license": "MIT",
+    "files": [
+        "dist/",
+        "src/"
+    ],
     "source": "src/color-thief.js",
     "main": "dist/color-thief.js",
     "types": "dist/color-thief-node.d.ts",
@@ -29,6 +33,7 @@
     "umd:main": "dist/color-thief.umd.js",
     "amdName": "ColorThief",
     "scripts": {
+        "prepublishOnly": "npm run build",
         "build": "microbundle --no-sourcemap && node ./build/build.js",
         "watch": "microbundle watch --no-sourcemap",
         "dev": "http-server",
