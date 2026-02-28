@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Color Thief - Direct API Tests</title>
+</head>
+<body>
+    <img id="img-black" src="./img/black.png" crossorigin="anonymous" />
+    <img id="img-red" src="./img/red.png" crossorigin="anonymous" />
+    <img id="img-rainbow" src="./img/rainbow-horizontal.png" crossorigin="anonymous" />
+    <img id="img-white" src="./img/white.png" crossorigin="anonymous" />
+    <img id="img-transparent" src="./img/transparent.png" crossorigin="anonymous" />
+
+    <script src="/dist/color-thief.umd.js"></script>
+    <script>
+        var images = document.querySelectorAll('img');
+        var loaded = 0;
+        var total = images.length;
+
+        function checkAllLoaded() {
+            loaded++;
+            if (loaded === total) {
+                document.body.setAttribute('data-ready', 'true');
+            }
+        }
+
+        images.forEach(function(img) {
+            if (img.complete) {
+                checkAllLoaded();
+            } else {
+                img.addEventListener('load', checkAllLoaded);
+                img.addEventListener('error', checkAllLoaded);
+            }
+        });
+    </script>
+</body>
+</html>
